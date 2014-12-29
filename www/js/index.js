@@ -26,11 +26,19 @@ var app = {
     });
   },
 
+  isVideo: function($media) {
+    return $media.attr('src').indexOf('.mp4') > 0;
+  },
+
   playMedia: function($media) {
     var me = this;
     me.$media = $media;
     $media.parent().toggleClass('hidden');
-    $media[0].play();
+    if (me.isAndroid() && me.isVideo($media)) {
+      window.plugins.html5Video.play($media.attr('id'));
+    } else {
+      $media[0].play();
+    }
   },
 
   stopMedia: function() {
@@ -47,11 +55,20 @@ var app = {
     $('#' + toPageId).toggleClass('hidden');
   },
 
+  isAndroid: function () {
+    return (device.platform == 'Android' || device.platform == 'amazon-fireos');
+  },
+
   // deviceready Event Handler
   //
   // The scope of 'this' is the event. In order to call the 'receivedEvent'
   // function, we must explicitly call 'app.receivedEvent(...);'
   onDeviceReady: function() {
-    app.receivedEvent('deviceready');
+    var me = this;
+    if (me.isAndroid()) {
+      window.plugins.html5Video.initialize({
+        "media1":"thethinwomanbrain.mp4"
+      });
+    }
   }
 };
