@@ -65,6 +65,6 @@ var app = {
   },
 
   onDeviceReady: function() {
-
+    console.log('device ready');
   }
 };
