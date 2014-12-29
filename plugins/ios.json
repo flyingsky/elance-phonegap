@@ -4,8 +4,32 @@
         "uninstalled": []
     },
     "config_munge": {
-        "files": {}
+        "files": {
+            "config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "framework": {
+                "parents": {
+                    "AssetsLibrary.framework": [],
+                    "MobileCoreServices.framework": []
+                }
+            }
+        }
     },
-    "installed_plugins": {},
+    "installed_plugins": {
+        "com.dawsonloudon.videoplayer": {
+            "PACKAGE_NAME": "com.dillia"
+        },
+        "org.apache.cordova.device": {
+            "PACKAGE_NAME": "com.dillia"
+        }
+    },
     "dependent_plugins": {}
 }
