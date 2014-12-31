@@ -21,6 +21,10 @@ var app = {
       $(ele)
         .attr('data-screen-name', data.screenName || data.icon.replace('.png', ''))
         .attr('src', 'media/' + data.asset);
+
+      if (!me.isVideo(data.asset)) {
+        $(ele).parent().css('background', '50% 50% no-repeat url(img/' + data.icon + ')');
+      }
     });
   },
 
@@ -69,7 +73,8 @@ var app = {
   },
 
   isVideo: function($media) {
-    return $media.attr('src').indexOf('.mp4') || $media.attr('src').indexOf('.m4v') > 0;
+    var src = typeof($media) === 'string' ? $media : $media.attr('src');
+    return src.indexOf('.mp4') > 0 || src.indexOf('.m4v') > 0;
   },
 
   playMedia: function($media) {
@@ -104,6 +109,7 @@ var app = {
   },
 
   isAndroid: function () {
+    return false;
     return (device && (device.platform === 'Android' || device.platform === 'amazon-fireos'));
   },
 
