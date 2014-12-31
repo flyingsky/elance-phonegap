@@ -1,12 +1,29 @@
 var app = {
+  config: [{
+    icon: 'EMDR.png',
+    asset: 'EMDRVideo.mp4'
+  }, {
+    icon: 'NLP.png',
+    asset: 'NLP.mp3'
+  }],
+
   // Application Constructor
   initialize: function() {
-    this.bindEvents();
+    var me = this;
+    me.bindEvents();
+
+    $('.icon').each(function(index, ele) {
+      $(ele).css('background-image', 'url(img/' + me.config[index].icon + ')');
+    });
+
+    $('.media').each(function(index, ele) {
+      var data = me.config[index];
+      $(ele)
+        .attr('data-screen-name', data.screenName || data.icon.replace('.png', ''))
+        .attr('src', 'media/' + data.asset);
+    });
   },
-  // Bind Event Listeners
-  //
-  // Bind any events that are required on startup. Common events are:
-  // 'load', 'deviceready', 'offline', and 'online'.
+
   bindEvents: function() {
     var me = this;
 
@@ -24,6 +41,31 @@ var app = {
       me.stopMedia();
       me.switchPage('medias', 'icons');
     });
+
+    $('#btnInfo, #btnHelp').click(function() {
+      if (me.$media) {
+        me.showModal(me.$media.attr('data-screen-name'), $(this).attr('data-modal-type'));
+      }
+    });
+  },
+
+  showModal: function(screenName, modalType) {
+    var me = this;
+    if (!me.isAndroid()) {
+      me.stopMedia(true);
+    }
+
+    var targetData = null;
+    $.each(appData.infoHelp, function(index, obj) {
+      if (obj.ScreenName === screenName) {
+        targetData = obj;
+        return false;
+      }
+    });
+
+    $('#modalTitle').text(modalType === 'Info' ? 'Information' : 'Help');
+    $('.modal-body').html(targetData[modalType]);
+    $('#myModal').modal('show');
   },
 
   isVideo: function($media) {
@@ -32,24 +74,25 @@ var app = {
 
   playMedia: function($media) {
     var me = this;
-
+    me.$media = $media;
     if (me.isAndroid()) {
       var newUrl = "file:///android_asset/www/" + $media.attr('src');
       VideoPlayer.play(newUrl);
     } else {
-      me.$media = $media;
       $media.parent().toggleClass('hidden');
       $media[0].play();
     }
   },
 
-  stopMedia: function() {
+  stopMedia: function(isPausedOnly) {
     var me = this;
     // this code is only for iOS
     if (me.$media) {
       me.$media[0].pause();
-      me.$media.parent().toggleClass('hidden');
-      me.$media[0].currentTime = 0;
+      if (!isPausedOnly) {
+        me.$media.parent().toggleClass('hidden');
+        me.$media[0].currentTime = 0;
+      }
     }
   },
 
@@ -61,7 +104,7 @@ var app = {
   },
 
   isAndroid: function () {
-    return (device.platform === 'Android' || device.platform === 'amazon-fireos');
+    return (device && (device.platform === 'Android' || device.platform === 'amazon-fireos'));
   },
 
   onDeviceReady: function() {
