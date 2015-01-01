@@ -31,7 +31,9 @@ var app = {
   bindEvents: function() {
     var me = this;
 
-    document.addEventListener('deviceready', me.onDeviceReady, false);
+    document.addEventListener('deviceready', function() {
+      me.onDeviceReady.call(me, arguments);
+    }, false);
 
     $('.icon').click(function(event) {
       var $icon = $(this);
@@ -109,11 +111,163 @@ var app = {
   },
 
   isAndroid: function () {
-    return false;
     return (device && (device.platform === 'Android' || device.platform === 'amazon-fireos'));
   },
 
   onDeviceReady: function() {
     console.log('device ready');
+    this.initStore();
+  },
+
+
+  //========================= Auto-Renew Subscription ==============================
+
+  initStore: function() {
+    var me = this;
+
+    if (!window.store) {
+      me.log('Store not available');
+      return;
+    }
+
+    // Enable maximum logging level
+    store.verbosity = store.DEBUG;
+
+    // Enable remote receipt validation
+    store.validator = "https://api.fovea.cc:1982/check-purchase";
+
+    // Inform the store of your products
+    me.log('registerProducts');
+
+    // FIXME: replace the id/alias with your real values
+    var productId = 'com.dalia.media.autorenew';
+    var productAlias = 'autorenew';
+    store.register({
+      id: productId,
+      alias: productAlias,
+      type:  store.PAID_SUBSCRIPTION
+    });
+
+    // When any product gets updated, refresh the HTML.
+    store.when("product").updated(function (p) {
+      app.renderIAP(p);
+    });
+
+    store.when(productAlias).approved(function(p) {
+      me.log("verify subscription");
+      p.verify();
+    });
+    store.when(productId).verified(function(p) {
+      me.log("subscription verified");
+      p.finish();
+    });
+    store.when(productId).unverified(function(p) {
+      me.log("subscription unverified");
+    });
+    store.when(productId).updated(function(p) {
+      if (p.owned) {
+        document.getElementById('subscriber-info').innerHTML = 'You are a lucky subscriber!';
+      }
+      else {
+        document.getElementById('subscriber-info').innerHTML = 'You are not subscribed';
+      }
+    });
+
+    // Log all errors
+    store.error(function(error) {
+      me.log('ERROR ' + error.code + ': ' + error.message);
+    });
+
+    // When the store is ready (i.e. all products are loaded and in their "final"
+    // state), we hide the "loading" indicator.
+    //
+    // Note that the "ready" function will be called immediately if the store
+    // is already ready.
+    store.ready(function() {
+      var el = document.getElementById("loading-indicator");
+      if (el)
+        el.style.display = 'none';
+    });
+
+    // When store is ready, activate the "refresh" button;
+    store.ready(function() {
+      var el = document.getElementById('refresh-button');
+      if (el) {
+        el.style.display = 'block';
+        el.onclick = function(ev) {
+          store.refresh();
+        };
+      }
+    });
+
+    // Alternatively, it's technically feasible to have a button that
+    // is always visible, but shows an alert if the full version isn't
+    // owned.
+    // ... but your app may be rejected by Apple if you do it this way.
+    //
+    // Here is the pseudo code for illustration purpose.
+
+    // myButton.onclick = function() {
+    //   store.ready(function() {
+    //     if (store.get("full version").owned) {
+    //       // access the awesome feature
+    //     }
+    //     else {
+    //       // display an alert
+    //     }
+    //   });
+    // };
+
+
+    // Refresh the store.
+    //
+    // This will contact the server to check all registered products
+    // validity and ownership status.
+    //
+    // It's fine to do this only at application startup, as it could be
+    // pretty expensive.
+    me.log('refresh');
+    store.refresh();
+  },
+
+  renderIAP: function(p) {
+
+    var elId = p.id.split(".")[3];
+
+    var el = document.getElementById('purchase');
+    if (!el) return;
+
+    if (!p.loaded) {
+      el.innerHTML = '<h3>...</h3>';
+    }
+    else if (!p.valid) {
+      el.innerHTML = '<h3>' + p.alias + ' Invalid</h3>';
+    }
+    else if (p.valid) {
+      var html = "<h3> Title: " + p.title + "</h3>" + "<p>Description:" + p.description + "</p>";
+      if (p.canPurchase) {
+        html += "<button class='btn btn-default' id='buy-" + p.id + "' productId='" + p.id + "' type='button'>Subscribe " + p.price + "</button>";
+      }
+      el.innerHTML = html;
+      if (p.canPurchase) {
+        document.getElementById("buy-" + p.id).onclick = function (event) {
+          var pid = this.getAttribute("productId");
+          store.order(pid);
+        };
+      }
+    }
+  },
+
+  // Utilities
+  // ---------
+  //
+  // log both in the console and in the HTML #log element.
+  log: function(arg) {
+    try {
+      if (typeof arg !== 'string')
+        arg = JSON.stringify(arg);
+      console.log(arg);
+      document.getElementById('log').innerHTML += '<div>' + arg + '</div>';
+    } catch (e) {}
   }
 };

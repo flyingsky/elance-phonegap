@@ -20,6 +20,25 @@
           <div class="icon" id="icon2"></div>
         </div>
       </div>
+
+      <hr>
+      <div class="row">
+        <div class="col-sm-10 col-xs-10 col-sm-offset-1 col-xs-offset-1">
+          <h3>Auto-Renewable Subscription</h3>
+
+          <h3 id="loading-indicator" style="color:red">Loading...</h3>
+          <div id="purchase"></div>
+
+          <!-- Are we subscribers? -->
+          <div id="subscriber-info">Loading subscription status...</div>
+
+          <!-- Button to access the full version feature: initially hidden -->
+          <button id="refresh-button" class="btn btn-default" style="display:none">Refresh purchases</button>
+
+          <!-- app.log will add stuff in here -->
+          <div id="log" style="font-size:0.7em;font-family:monospace;border:1px dashed blue"/>
+        </div>
+      </div>
     </div>
 
     <div id="medias" class="hidden page">
