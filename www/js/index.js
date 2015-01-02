@@ -134,14 +134,14 @@ var app = {
     store.verbosity = store.DEBUG;
 
     // Enable remote receipt validation
-    store.validator = "https://api.fovea.cc:1982/check-purchase";
+    store.validator = "http://10.0.0.2:3000";
 
     // Inform the store of your products
     me.log('registerProducts');
 
     // FIXME: replace the id/alias with your real values
-    var productId = 'com.dalia.media.autorenew';
-    var productAlias = 'autorenew';
+    var productId = 'com.dalia.media.autorenew4';
+    var productAlias = 'autorenew4';
     store.register({
       id: productId,
       alias: productAlias,
