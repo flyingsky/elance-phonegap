@@ -5,30 +5,48 @@
     },
     "config_munge": {
         "files": {
-            "config.xml": {
+            "framework": {
                 "parents": {
-                    "/*": [
+                    "StoreKit.framework": [
                         {
-                            "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
+                            "xml": "false",
                             "count": 1
                         }
                     ]
                 }
             },
-            "framework": {
+            "config.xml": {
                 "parents": {
-                    "AssetsLibrary.framework": [],
-                    "MobileCoreServices.framework": []
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"Console\"><param name=\"ios-package\" value=\"CDVLogger\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"Device\"><param name=\"ios-package\" value=\"CDVDevice\" /></feature>",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"InAppPurchase\"><param name=\"ios-package\" value=\"InAppPurchase\" /></feature>",
+                            "count": 1
+                        }
+                    ]
                 }
             }
         }
     },
     "installed_plugins": {
         "com.dawsonloudon.videoplayer": {
-            "PACKAGE_NAME": "com.dillia"
+            "PACKAGE_NAME": "com.dalia.media"
+        },
+        "org.apache.cordova.console": {
+            "PACKAGE_NAME": "com.dalia.media"
         },
         "org.apache.cordova.device": {
-            "PACKAGE_NAME": "com.dillia"
+            "PACKAGE_NAME": "com.dalia.media"
+        },
+        "cc.fovea.cordova.purchase": {
+            "PACKAGE_NAME": "com.dalia.media"
         }
     },
     "dependent_plugins": {}
