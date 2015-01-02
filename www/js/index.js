@@ -142,7 +142,7 @@ var app = {
     // Enable remote receipt validation
     var queryString = '?password=' + password + '&isSandBox=' + isSandBox + '&isAutoRenew=true';
     store.validator = "http://checkpurchase-flyingsky.rhcloud.com/verify" + queryString;
-    // store.validator = "http://10.0.0.2:3000/verify" + queryString;
+    //store.validator = "http://10.0.0.2:3000/verify" + queryString;
 
     // Inform the store of your products
     me.log('registerProducts');
@@ -160,7 +160,12 @@ var app = {
 
     store.when(productAlias).approved(function(p) {
       me.log("verify subscription");
-      p.verify();
+      p.verify().success(function(p, purchaseData) {
+        // TODO: you can get all receipt information from here, see more information from
+        // https://developer.apple.com/library/ios/releasenotes/General/ValidateAppStoreReceipt/Chapters/ValidateRemotely.html#//apple_ref/doc/uid/TP40010573-CH104-SW4
+        // please use purchaseData.latest_receipt_info to get purchase information
+        console.log(purchaseData);
+      });
     });
     store.when(productId).verified(function(p) {
       me.log("subscription verified");
@@ -168,6 +173,12 @@ var app = {
     });
     store.when(productId).unverified(function(p) {
       me.log("subscription unverified");
+    });
+    store.when(productId).cancelled(function(p) {
+      me.log('subscription cancelled');
+    });
+    store.when(productId).expired(function(p) {
+      me.log('subscription expired');
     });
     store.when(productId).updated(function(p) {
       if (p.owned) {
@@ -190,13 +201,11 @@ var app = {
     // is already ready.
     store.ready(function() {
       var el = document.getElementById("loading-indicator");
-      if (el)
+      if (el) {
         el.style.display = 'none';
-    });
+      }
 
-    // When store is ready, activate the "refresh" button;
-    store.ready(function() {
-      var el = document.getElementById('refresh-button');
+      el = document.getElementById('refresh-button');
       if (el) {
         el.style.display = 'block';
         el.onclick = function(ev) {
