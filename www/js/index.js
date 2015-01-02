@@ -133,15 +133,20 @@ var app = {
     // Enable maximum logging level
     store.verbosity = store.DEBUG;
 
+    // FIXME: replace the id/alias with your real values
+    var password = '2567363b81c44bdeac914c8d627d50dc';
+    var productId = 'com.dalia.media.autorenew5';
+    var productAlias = 'autorenew5';
+    var isSandBox = true;
+
     // Enable remote receipt validation
-    store.validator = "http://10.0.0.2:3000";
+    var queryString = '?password=' + password + '&isSandBox=' + isSandBox + '&isAutoRenew=true';
+    store.validator = "http://checkpurchase-flyingsky.rhcloud.com/verify" + queryString;
+    // store.validator = "http://10.0.0.2:3000/verify" + queryString;
 
     // Inform the store of your products
     me.log('registerProducts');
 
-    // FIXME: replace the id/alias with your real values
-    var productId = 'com.dalia.media.autorenew4';
-    var productAlias = 'autorenew4';
     store.register({
       id: productId,
       alias: productAlias,
